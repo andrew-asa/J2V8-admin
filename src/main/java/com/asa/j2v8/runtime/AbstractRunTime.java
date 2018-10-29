@@ -1,6 +1,7 @@
 package com.asa.j2v8.runtime;
 
 import com.asa.j2v8.canvas.ChartRuntime;
+import com.asa.j2v8.canvas.V8Canvas;
 import com.eclipsesource.v8.JavaCallback;
 import com.eclipsesource.v8.Releasable;
 import com.eclipsesource.v8.V8;
@@ -12,8 +13,8 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.canvas.Canvas;
 import javafx.util.Duration;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public class AbstractRunTime {
     public void prepareBaseEnv() {
         //将log/warn方法代理成原生print
         v8.executeVoidScript("var console = {" +
-                                     "log:function(s){print(s);}, warn:function(s){print(s);}"
+                                     "log:function(s){print(s);}, warn:function(s){print(s);}, error:function(s){print(s);}"
 
                                      +
                                      "}");
@@ -54,7 +55,7 @@ public class AbstractRunTime {
             @Override
             public Object invoke(V8Object receiver, V8Array parameters) {
 
-                LOGGER.info(parameters.getString(0));
+                //LOGGER.info(parameters.getString(0));
                 return null;
             }
         }, "print");
@@ -172,5 +173,26 @@ public class AbstractRunTime {
     public void setV8(V8 v8) {
 
         this.v8 = v8;
+    }
+
+    public void registerCanvasConstructor() {
+
+        V8Function v8CanvasFunc = new V8Function(v8, new JavaCallback() {
+
+            @Override
+            public Object invoke(V8Object receiver, V8Array parameters) {
+
+                LOGGER.info("new canvas");
+                double width = 0;
+                double height = 0;
+                if (parameters.length() == 2) {
+                    width = parameters.getDouble(0);
+                    height = parameters.getDouble(0);
+                }
+                return new V8Canvas(v8, new Canvas(width, height));
+            }
+        });
+        v8.add("Canvas", v8CanvasFunc);
+        v8CanvasFunc.release();
     }
 }

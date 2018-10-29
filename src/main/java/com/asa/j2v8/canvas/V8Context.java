@@ -273,6 +273,7 @@ public class V8Context extends V8Object {
             @Override
             public void invoke(V8Object receiver, V8Array parameters) {
                 ctx.setFont(FontUtils.parseFont(parameters.getString(0)));
+                //ctx.setFont(Font.loadFont(this.getClass().getClassLoader().getResourceAsStream("bi.ttf"), 12));
             }
         }, "setFont");
 
@@ -288,7 +289,6 @@ public class V8Context extends V8Object {
                 } else if ("round".equals(lineCap)) {
                     ctx.setLineCap(StrokeLineCap.ROUND);
                 }
-
             }
         }, "setLineCap");
 

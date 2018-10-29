@@ -10,6 +10,7 @@
 
     <properties>
         <commons.collections.version>3.2.2</commons.collections.version>
+        <fr-version>10.0-RELEASE-SNAPSHOT</fr-version>
     </properties>
 
     <dependencies>
@@ -53,6 +54,13 @@
             <groupId>com.eclipsesource.j2v8</groupId>
             <artifactId>j2v8_macosx_x86_64</artifactId>
             <version>4.6.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fr.third</groupId>
+            <artifactId>fine-third</artifactId>
+            <version>${fr-version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
     <build>

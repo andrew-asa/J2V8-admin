@@ -1,10 +1,7 @@
 package com.asa.j2v8.canvas;
 
 import com.asa.j2v8.runtime.AbstractRunTime;
-import com.eclipsesource.v8.JavaCallback;
 import com.eclipsesource.v8.V8Array;
-import com.eclipsesource.v8.V8Function;
-import com.eclipsesource.v8.V8Object;
 import javafx.scene.canvas.Canvas;
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,27 +38,6 @@ public class ChartRuntime extends AbstractRunTime {
         //show echarts env
         String env = v8.executeStringScript("JSON.stringify(echarts.env)");
         LOGGER.info("echarts status {}", env);
-    }
-
-    private void registerCanvasConstructor() {
-
-        V8Function v8CanvasFunc = new V8Function(v8, new JavaCallback() {
-
-            @Override
-            public Object invoke(V8Object receiver, V8Array parameters) {
-
-                LOGGER.info("new canvas");
-                double width = 0;
-                double height = 0;
-                if (parameters.length() == 2) {
-                    width = parameters.getDouble(0);
-                    height = parameters.getDouble(0);
-                }
-                return new V8Canvas(v8, new Canvas(width, height));
-            }
-        });
-        v8.add("Canvas", v8CanvasFunc);
-        v8CanvasFunc.release();
     }
 
 
