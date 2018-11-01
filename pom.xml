@@ -62,6 +62,13 @@
             <version>${fr-version}</version>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.fr.core</groupId>
+            <artifactId>fine-core</artifactId>
+            <version>${fr-version}</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

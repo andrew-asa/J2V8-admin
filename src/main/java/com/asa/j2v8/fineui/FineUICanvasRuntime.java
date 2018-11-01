@@ -1,9 +1,12 @@
 package com.asa.j2v8.fineui;
 
-import com.asa.j2v8.canvas.V8Canvas;
 import com.asa.j2v8.canvas.V8Document;
+import com.asa.j2v8.canvas.V8Image;
 import com.asa.j2v8.canvas.V8Window;
 import com.asa.j2v8.runtime.AbstractRunTime;
+import com.eclipsesource.v8.JavaCallback;
+import com.eclipsesource.v8.V8Array;
+import com.eclipsesource.v8.V8Function;
 import com.eclipsesource.v8.V8Object;
 import com.fr.third.org.apache.commons.io.IOUtils;
 import javafx.scene.canvas.Canvas;
@@ -25,7 +28,6 @@ public class FineUICanvasRuntime extends AbstractRunTime {
 
     private Canvas canvas;
 
-    private V8Canvas v8Canvas;
 
     public String[] FINE_UI_JS_LIST = new String[]{
             "fineui/dist/fineui_without_jquery_polyfill.js",
@@ -45,7 +47,6 @@ public class FineUICanvasRuntime extends AbstractRunTime {
             prepareWidgetEnv();
             registerCanvasConstructor();
             registerWindowObject();
-            registerDocumentObject();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -80,23 +81,27 @@ public class FineUICanvasRuntime extends AbstractRunTime {
         try {
             String imageFix = loadJS("image-fix.js");
             v8.executeVoidScript(imageFix);
+            String fx = loadJS("fx-adapter.js");
+            v8.executeVoidScript(fx);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
     }
 
-    public void registerDocumentObject() {
-
-        V8Object document = new V8Document(v8, v8Canvas);
-        v8.add("document", document);
-        //document.release();
-    }
 
     public void registerWindowObject() {
 
         V8Window window = new V8Window(v8);
         v8.add("window", window);
-        //window.release();
+        V8Object document = new V8Document(v8, canvas);
+        v8.add("document", document);
+        V8Function constructor = new V8Function(v8, new JavaCallback() {
+            @Override
+            public Object invoke(V8Object receiver, V8Array parameters) {
+                return new V8Image(v8);
+            }
+        });
+        v8.add("Image", constructor);
     }
 
     private void loadBIFont() {
@@ -137,7 +142,6 @@ public class FineUICanvasRuntime extends AbstractRunTime {
         this.canvas = canvas;
         //String render = loadJS("render-fineui-canvas.js");
         //v8.executeVoidScript(render);
-        v8Canvas = new V8Canvas(v8, canvas);
         //V8Array params = new V8Array(v8).push(v8Canvas);
         //v8.executeVoidFunction("initFineUIWithCanvas", params);
     }

@@ -403,5 +403,53 @@ public class V8Context extends V8Object {
                 }
             }
         }, "setTextBaseline");
+
+        registerJavaMethod(new JavaVoidCallback() {
+            @Override
+            public void invoke(V8Object receiver, V8Array parameters) {
+                int length = parameters.length();
+                V8Object imageObj = parameters.getObject(0);
+                Image image;
+                if (imageObj.contains("canvas_id")) {
+                    //从另一个canvas绘制
+                    image = GlobalImageCache.createFromCanvas(imageObj.getString("canvas_id"));
+                } else {
+                    //绘制一张图片
+                    //fixme 第一次绘制图片尺寸不对,应该是少响应了一次刷新
+                    String url = imageObj.getString("_src");
+                    image = GlobalImageCache.getOrCreate(url);
+                }
+                imageObj.release();
+                if (image == null) {
+                    Log.d("生成图片发生了错误");
+                    return;
+                }
+                try {
+                    if (length == 3) {
+                        double x = parameters.getDouble(1);
+                        double y = parameters.getDouble(2);
+                        ctx.drawImage(image, x, y);
+                    } else if (length == 5) {
+                        double x = parameters.getDouble(1);
+                        double y = parameters.getDouble(2);
+                        double w = parameters.getDouble(3);
+                        double h = parameters.getDouble(4);
+                        ctx.drawImage(image, x, y, w, h);
+                    } else if (length == 9) {
+                        double sx = parameters.getDouble(1);
+                        double sy = parameters.getDouble(2);
+                        double sw = parameters.getDouble(3);
+                        double sh = parameters.getDouble(4);
+                        double dx = parameters.getDouble(5);
+                        double dy = parameters.getDouble(6);
+                        double dw = parameters.getDouble(7);
+                        double dh = parameters.getDouble(8);
+                        ctx.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }, "drawImage");
     }
 }
